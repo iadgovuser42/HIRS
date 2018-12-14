@@ -4,7 +4,7 @@ set -e
 
 # TODO: See note about modular packaging in ACA script
 pushd /HIRS
-./package/package.centos.sh
+#./package/package.centos.sh
 yum install -y package/rpm/RPMS/x86_64/HIRS_Provisioner_TPM_2_0*.el7.x86_64.rpm
 popd
 
