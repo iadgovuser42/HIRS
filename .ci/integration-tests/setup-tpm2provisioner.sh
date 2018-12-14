@@ -4,7 +4,7 @@ set -e
 
 # TODO: See note about modular packaging in ACA script
 pushd /HIRS
-# ./package/package.centos.sh
+./package/package.centos.sh
 yum install -y package/rpm/RPMS/x86_64/HIRS_Provisioner_TPM_2_0*.el7.x86_64.rpm
 popd
 
@@ -46,6 +46,11 @@ mkdir -p $PC_DIR
 /opt/paccor/bin/observer -c $PC_DIR/componentsFile -p $PC_DIR/optionsFile -e $ek_cert_der -f $PC_DIR/observerFile
 /opt/paccor/bin/signer -o $PC_DIR/observerFile -x $PC_DIR/extensionsFile -b 20180101 -a 20280101 -N $RANDOM -k /HIRS/.ci/integration-tests/certs/ca.key -P /HIRS/.ci/integration-tests/certs/ca.crt --pem -f $PC_DIR/$platform_cert
 
+echo "Release nvram for ek"
+if tpm2_nvlist | grep -q 0x1c00002; then
+  tpm2_nvrelease -x 0x1c00002 -a 0x40000001 
+fi
+
 # Define nvram space to enable loading of EK cert (-x NV Index, -a handle to
 # authorize [0x40000001 = ownerAuth handle], -s size [defaults to 2048], -t
 # specifies attribute value in publicInfo struct
@@ -57,6 +62,11 @@ tpm2_nvdefine -x 0x1c00002 -a 0x40000001 -t 0x2000A -s $size
 # Load key into TPM nvram
 echo "Load ek cert into nvram"
 tpm2_nvwrite -x 0x1c00002 -a 0x40000001 $ek_cert_der
+
+echo "Release nvram for PC"
+if tpm2_nvlist | grep -q 0x1c90000; then
+  tpm2_nvrelease -x 0x1c90000 -a 0x40000001 
+fi
 
 # Store the platform certificate in the TPM's NVRAM
 tpm2_nvdefine -x 0x1c90000 -a 0x40000001 -t 0x2000A -s $(cat $PC_DIR/$platform_cert | wc -c)
