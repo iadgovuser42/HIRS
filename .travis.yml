@@ -37,6 +37,6 @@ jobs:
       script: docker run --rm -v $(pwd):/HIRS hirs/hirs-ci:centos7 /bin/bash -c "cd /HIRS; ./package/package.centos.sh"
       env: null
       name: "Package Centos"
-    - script: docker run --rm -v $(pwd):/HIRS hirs/hirs-ci:ubuntu18 /bin/bash -c "cd /HIRS; ./package/package.ubuntu.sh"
-      env: null
-      name: "Package Ubuntu"
+ #   - script: docker run --rm -v $(pwd):/HIRS hirs/hirs-ci:ubuntu18 /bin/bash -c "cd /HIRS; ./package/package.ubuntu.sh"
+ #     env: null
+ #     name: "Package Ubuntu"
