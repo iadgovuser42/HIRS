@@ -603,9 +603,9 @@ class SystemTest(unittest.TestCase):
 	def test_13_tpm2_initial_provision(self):
 		"""Test that running the tpm2 hirs provisioner works"""
 		logging.info("*****************beginning of initial provisioner run *****************")
-# 		# Run the provisioner to ensure that it provisions successfully
-# 		provisioner_out = run_hirs_provisioner_tpm2(CLIENT)
-#         print("Initial provisioner run output: {0}".format(provisioner_out))
+ 		# Run the provisioner to ensure that it provisions successfully
+ 		provisioner_out = run_hirs_provisioner_tpm2(CLIENT)
+        print("Initial provisioner run output: {0}".format(provisioner_out))
       
 	def test_14_device_info_report_stored_after_provisioning(self):
 		"""Test that running the hirs provisioner results in storing a device info report for
