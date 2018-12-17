@@ -473,7 +473,6 @@ def run_hirs_provisioner_tpm2(client_hostname):
     """Runs the hirs provisioner TPM2
     """
     logging.info("running hirs provisioner tpm2 on {0}".format(client_hostname))
-#    client_out = send_command_V2("sudo tpm_aca_provision")
     client_out = send_command_V2("hirs-provisioner-tpm2 provision")
     return client_out
 
