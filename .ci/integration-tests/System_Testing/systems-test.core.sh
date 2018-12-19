@@ -5,21 +5,22 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 TEST_LOG=$SCRIPT_DIR/test_logs/system_test_$CLIENT_OS.log
 LOG_LEVEL=logging.INFO
 
-#echo "SCRIPT_DIR = ${SCRIPT_DIR}"
-#echo "TEST_LOG = ${TEST_LOG}"
-#echo "LOG_LEVEL = ${LOG_LEVEL}"
+echo "SCRIPT_DIR = ${SCRIPT_DIR}"
+echo "TEST_LOG = ${TEST_LOG}"
+echo "LOG_LEVEL = ${LOG_LEVEL}"
 
 export SERVER_SHORT=$SERVER_HOSTNAME
 
 export SERVER_HOSTNAME CLIENT_HOSTNAME ENABLED_COLLECTORS LOG_LEVEL TPM_VERSION TEST_LOG CLIENT_OS
 
 # prepare log file directory
-rm -rf ./test_logs
-mkdir ./test_logs
+#rm -rf ./test_logs
+#mkdir ./test_logs
+rm -rf $SCRIPT_DIR/test_logs
+mkdir -p $SCRIPT_DIR/test_logs
 
 # run systems tests
 echo "Running systems tests on ${SERVER_HOSTNAME} and ${CLIENT_HOSTNAME}"
-##cd "$SCRIPT_DIR/../Systems_Tests/python"
 # run the test script file and provide the config file
 TEST_OUTPUT=$SCRIPT_DIR/test_logs/test_output$$.txt
 echo "Testing system tests logging..." | tee $TEST_LOG

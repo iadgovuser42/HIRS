@@ -50,6 +50,8 @@ TEST_LOG_FILE = os.environ.get('TEST_LOG')
 LOG_LEVEL = os.environ.get('LOG_LEVEL')
 CLIENT_OS = os.environ.get('CLIENT_OS')
 TPM_VERSION = os.environ.get('TPM_VERSION')
+CA_CERT_LOCATION = "/HIRS/.ci/integration-tests/certs/ca.crt"
+EK_CA_CERT_LOCATION = "/HIRS/.ci/integration-tests/certs/ek_cert.der"
 USB_STORAGE_FILE_HASH = "e164c378ceb45a62642730be5eb3169a6bfc2d6d"
 USB_STORAGE_FILE_HASH_2 = "e164c378ceb45a62642730be5eb3169a6bfc1234"
 provisioner_out = None
@@ -605,42 +607,44 @@ class SystemTest(unittest.TestCase):
 		logging.info("*****************beginning of initial provisioner run *****************")
  		# Run the provisioner to ensure that it provisions successfully
  		provisioner_out = run_hirs_provisioner_tpm2(CLIENT)
-        print("Initial provisioner run output: {0}".format(provisioner_out))
+       	print("Initial provisioner run output: {0}".format(provisioner_out))
       
 	def test_14_device_info_report_stored_after_provisioning(self):
 		"""Test that running the hirs provisioner results in storing a device info report for
 			the device in the DB"""
 		logging.info("*****************beginning of provisioner + device info report test *****************")
 		logging.info("getting devices from ACA portal")
-# 		aca_portal_devices = AcaPortal.get_devices()
-# 		self.assertEqual(aca_portal_devices['recordsTotal'], 1) 
+ 		aca_portal_devices = AcaPortal.get_devices()
+ 		self.assertEqual(aca_portal_devices['recordsTotal'], 1) 
 	 
 	@unittest.skipIf(not is_tpm2(TPM_VERSION), "Skipping this test due to TPM Version " + TPM_VERSION)	
 	def test_15_supply_chain_validation_summary_stored_after_second_provisioning(self):
 		"""Test that running the hirs provisioner, a second time, results in storing a supply chain validation
 		   record in the database"""
 		logging.info("*****************beginning of provisioner + supply chain validation summary test *****************")
-# 		if is_tpm2(TPM_VERSION):
-# 			logging.info("Using TPM 2.0")
-# 			AcaPortal.upload_ca_cert('/home/hirs-testing/Systems_Tests/ca.crt')
-# 			AcaPortal.enable_supply_chain_validations()
-# 			provisioner_out = run_hirs_provisioner_tpm2(CLIENT)
-# 		else:
-# 			# Supply chain validation only supported on CentOS 7
-# 			if CLIENT_OS == "centos7":
-# 				AcaPortal.upload_ca_cert('/home/hirs-testing/Systems_Tests/ek_ca.crt')
-# 				AcaPortal.enable_ec_validation()
-# 				provisioner_out = run_hirs_provisioner(CLIENT)
-# 				
-# 		print("Second provisioner run output: {0}".format(provisioner_out))
-# 		supply_chain_validation_summaries = AcaPortal.get_supply_chain_validation_summaries()
-# 		# verify this is one SCVS record indicating PASS
-# 		self.assertEqual(supply_chain_validation_summaries['recordsTotal'], 2)
-# 		self.assertEqual(supply_chain_validation_summaries['data'][0]['overallValidationResult'], "PASS")
-# 		self.assertEqual(supply_chain_validation_summaries['data'][1]['overallValidationResult'], "PASS")
-# 		# verify device has been updated with supply chain appraisal result
-# 		devices = AcaPortal.get_devices()
-# 		self.assertEqual(devices['data'][0]['device']['supplyChainStatus'], "PASS")
+		if is_tpm2(TPM_VERSION):
+			logging.info("Using TPM 2.0")
+			#AcaPortal.upload_ca_cert('/home/hirs-testing/Systems_Tests/ca.crt')
+			logging.info("Uploading CA cert: " + CA_CERT_LOCATION)
+			AcaPortal.upload_ca_cert(CA_CERT_LOCATION)
+			AcaPortal.enable_supply_chain_validations()
+			provisioner_out = run_hirs_provisioner_tpm2(CLIENT)
+		else:
+			# Supply chain validation only supported on CentOS 7
+			if CLIENT_OS == "centos7":
+				AcaPortal.upload_ca_cert(EK_CA_CERT_LOCATION)
+				AcaPortal.enable_ec_validation()
+				provisioner_out = run_hirs_provisioner(CLIENT)
+ 				
+		print("Second provisioner run output: {0}".format(provisioner_out))
+		supply_chain_validation_summaries = AcaPortal.get_supply_chain_validation_summaries()
+		# verify this is one SCVS record indicating PASS
+		self.assertEqual(supply_chain_validation_summaries['recordsTotal'], 2)
+		self.assertEqual(supply_chain_validation_summaries['data'][0]['overallValidationResult'], "PASS")
+		self.assertEqual(supply_chain_validation_summaries['data'][1]['overallValidationResult'], "PASS")
+		# verify device has been updated with supply chain appraisal result
+		devices = AcaPortal.get_devices()
+		self.assertEqual(devices['data'][0]['device']['supplyChainStatus'], "PASS")
 	
 	@unittest.skipIf(not is_tpm2(TPM_VERSION), "Skipping this test due to TPM Version " + TPM_VERSION)
 	def test_16_ek_info_report(self):
@@ -648,19 +652,19 @@ class SystemTest(unittest.TestCase):
 			the device in the DB"""
 		logging.info("*****************beginning of provisioner + Endorsement certs info report test *****************")
 		logging.info("getting ek certs from ACA portal")
-# 		cert_list = AcaPortal.get_ek_certs()
-# 		self.assertEqual(cert_list['recordsTotal'], 1)	
-# 		self.assertEqual(cert_list['data'][0]['credentialType'], "TCPA Trusted Platform Module Endorsement")
-# 		
+		cert_list = AcaPortal.get_ek_certs()
+		self.assertEqual(cert_list['recordsTotal'], 1)	
+		self.assertEqual(cert_list['data'][0]['credentialType'], "TCPA Trusted Platform Module Endorsement")
+ 		
  	@unittest.skipIf(not is_tpm2(TPM_VERSION), "Skipping this test due to TPM Version " + TPM_VERSION)   
 	def test_17_pk_info_report(self):
 		"""Test that running the hirs provisioner results in storing PK certs info report for
 			the device in the DB"""
 		logging.info("*****************beginning of provisioner + Platform certs info report test *****************")
 		logging.info("getting pk certs from ACA portal")
-# 		cert_list = AcaPortal.get_pk_certs()
-# 		self.assertEqual(cert_list['recordsTotal'], 1)	
-# 		self.assertEqual(cert_list['data'][0]['credentialType'], "TCG Trusted Platform Endorsement")
+		cert_list = AcaPortal.get_pk_certs()
+		self.assertEqual(cert_list['recordsTotal'], 1)	
+		self.assertEqual(cert_list['data'][0]['credentialType'], "TCG Trusted Platform Endorsement")
 	
 	@unittest.skipIf(not is_tpm2(TPM_VERSION), "Skipping this test due to TPM Version " + TPM_VERSION)	
 	def test_18_trust_chain_info_report(self):
@@ -668,8 +672,8 @@ class SystemTest(unittest.TestCase):
 			the device in the DB"""
 		logging.info("*****************beginning of provisioner + Trust chains info report test *****************")
 		logging.info("getting trust chains from ACA portal")
-# 		trust_chain_list = AcaPortal.get_trust_chains()
-# 		self.assertEqual(trust_chain_list['recordsTotal'], 1)
+		trust_chain_list = AcaPortal.get_trust_chains()
+		self.assertEqual(trust_chain_list['recordsTotal'], 1)
 			
 def make_simple_ima_baseline():
     timestamp = get_current_timestamp()
