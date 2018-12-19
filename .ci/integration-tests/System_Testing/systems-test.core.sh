@@ -19,6 +19,10 @@ export SERVER_HOSTNAME CLIENT_HOSTNAME ENABLED_COLLECTORS LOG_LEVEL TPM_VERSION 
 rm -rf $SCRIPT_DIR/test_logs
 mkdir -p $SCRIPT_DIR/test_logs
 
+echo "Updating hirs-site.config..."
+#unalias cp
+#cp $SCRIPT_DIR/hirs-site.config /etc/hirs/
+
 # run systems tests
 echo "Running systems tests on ${SERVER_HOSTNAME} and ${CLIENT_HOSTNAME}"
 # run the test script file and provide the config file
@@ -26,6 +30,7 @@ TEST_OUTPUT=$SCRIPT_DIR/test_logs/test_output$$.txt
 echo "Testing system tests logging..." | tee $TEST_LOG
 python $SCRIPT_DIR/system_test.py 2>&1 | tee $TEST_OUTPUT
 SYSTEM_TEST_EXIT_CODE=$PIPESTATUS
+#SYSTEM_TEST_EXIT_CODE=0
 
 # check result
 if [[ $SYSTEM_TEST_EXIT_CODE == 0 ]]
